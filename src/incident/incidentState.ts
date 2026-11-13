@@ -3,6 +3,8 @@ import type { AppAction, AppState } from "../appState";
 import { repairEligibility } from "../simulation/autopilot";
 import { withWorkload } from "../scenarios/workloads";
 import type { ServiceStatus, SimulationScenario, SimulationState } from "../simulation/types";
+import { predictIncident } from "./prediction";
+import type { IncidentPrediction } from "./prediction";
 
 export const INCIDENT_TICK_CAP = 18;
 export const INCIDENT_ALERT_LIMIT = 40;
@@ -36,6 +38,7 @@ export interface IncidentState {
   readonly automatic: boolean;
   readonly sequence: number; // Invalidates callbacks from earlier playback sequences.
   readonly incident: IncidentSession | null;
+  readonly prediction: IncidentPrediction | null;
 }
 
 export type IncidentAction =
@@ -47,7 +50,7 @@ export type IncidentAction =
   | { readonly type: "playback-tick"; readonly sequence: number; readonly expectedTick: number };
 
 export function createIncidentState(scenario: SimulationScenario): IncidentState {
-  return { app: createAppState(scenario), automatic: true, sequence: 0, incident: null };
+  return { app: createAppState(scenario), automatic: true, sequence: 0, incident: null, prediction: null };
 }
 
 export function currentImpact(simulation: SimulationState) {
@@ -163,7 +166,7 @@ function advance(base: SimulationScenario, state: IncidentState): IncidentState 
 }
 
 /** UI reducer wraps existing application actions; it never writes engine service state. */
-export function reduceIncidentState(base: SimulationScenario, state: IncidentState, action: IncidentAction): IncidentState {
+function reduceIncidentCore(base: SimulationScenario, state: IncidentState, action: IncidentAction): IncidentState {
   if (action.type === "playback-mode") return { ...state, automatic: action.automatic, sequence: state.sequence + 1,
     incident: state.incident?.phase === "running" ? { ...state.incident, phase: "paused", stopReason: "manual" } : state.incident };
   if (action.type === "pause") return state.incident?.phase === "running"
@@ -207,4 +210,15 @@ export function reduceIncidentState(base: SimulationScenario, state: IncidentSta
     return { ...nextState, incident: observeIncident(scenario, session, state.app.simulation, app.simulation, app) };
   }
   return { ...nextState, incident: paused ? observeIncident(scenario, paused, state.app.simulation, app.simulation, app) : null };
+}
+
+export function reduceIncidentState(base: SimulationScenario, state: IncidentState, action: IncidentAction): IncidentState {
+  const next = reduceIncidentCore(base, state, action);
+  if (next === state) return state;
+  if (!next.incident) return next.prediction ? { ...next, prediction: null } : next;
+  if (next.app.simulation !== state.app.simulation || next.app.autopilotEnabled !== state.app.autopilotEnabled
+    || next.app.autopilotConfig !== state.app.autopilotConfig) {
+    return { ...next, prediction: predictIncident(activeScenario(base, next.app), next.app) };
+  }
+  return next;
 }

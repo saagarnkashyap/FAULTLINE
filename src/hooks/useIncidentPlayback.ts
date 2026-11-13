@@ -2,8 +2,9 @@ import { useCallback, useEffect, useReducer } from "react";
 import type { AppAction } from "../appState";
 import { createIncidentState, reduceIncidentState } from "../incident/incidentState";
 import type { SimulationScenario } from "../simulation/types";
+import { PRESENTATION_STEP_MS } from "../incident/prediction";
 
-export const PLAYBACK_INTERVAL_MS = 800;
+export const PLAYBACK_INTERVAL_MS = PRESENTATION_STEP_MS;
 
 /** One cancellable presentation callback; exported for fake-timer lifecycle tests. */
 export function scheduleIncidentTick(advance: () => void): () => void {

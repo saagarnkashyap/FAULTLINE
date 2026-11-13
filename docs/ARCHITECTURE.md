@@ -1,6 +1,7 @@
 # FAULTLINE — Architecture
 
-Status: implemented through Phase 5B (visual identity and UX polish), with
+Status: Phase 5B foundation plus the simplified command-center UI and bounded
+incident forecasting, with
 AUTOPILOT, backoff, seeded jitter, circuit breaker, and Adaptive recovery experiments.
 Phase 1 dependency/recovery semantics and Phase 2A overload rules remain the
 baseline. Phase 6 is not implemented.
@@ -34,6 +35,7 @@ src/
   appState.ts                    # UI actions delegate to the engine; preset changes reset
   incident/
     incidentState.ts             # UI playback lifecycle, engine-event alerts, impact/exposure
+    prediction.ts                # cloned, bounded replay of the existing application Step path
   hooks/
     useIncidentPlayback.ts       # one cancellable presentation timeout per engine tick
   styles.css
@@ -58,6 +60,8 @@ src/
   graph/
     toGraphData.ts               # domain IDs -> separate renderer objects
     ServiceGraph.tsx             # visualization and selection callbacks
+    displayLayout.ts             # fixed renderer-only layered layout and label placement
+    GraphLabels.tsx               # persistent DOM names projected from actual 3D coordinates
   components/
     Controls.tsx
     ServiceDetails.tsx
@@ -68,6 +72,10 @@ src/
     IncidentOverlay.tsx          # brief graph-local fault banner and recent cards
     IncidentAlerts.tsx            # at most three visual cards
     IncidentSummary.tsx           # actual impact, exposure, dependencies, bounded timeline
+    ServiceCard.tsx               # compact inspector used by the main interface
+    IncidentCommandOverlay.tsx    # confirmed status plus bounded forecast warnings
+    LiveIncident.tsx              # concise playback controls and actual impact
+    ProductTimeline.tsx           # readable, genuine status/recovery changes
 ```
 
 Vite configuration and the package lockfile live at the root. State stays in `App`
@@ -1180,3 +1188,155 @@ documents its standalone 3D React package, WebGL rendering, graph IDs, interacti
 and directional arrows; the simulation semantics above are FAULTLINE design choices.
 [Vitest's guide](https://vitest.dev/guide/) documents Vite integration and standalone
 test execution for the pure engine.
+
+## Simplified command center and forecast warnings
+
+The main interface now uses **Time**, **Step**, **Live incident**, **Affected now**,
+**What fails next**, and **Incident timeline**. Time is simulated elapsed time;
+Step remains the discrete unit of engine progress. Technical contracts retain
+integer ticks internally. The main dashboard contains the explorer, named graph,
+compact inspector, incident controls/summary, timeline, and recovery comparison.
+The AUTOPILOT panel and inspector controller details are not mounted there. Its
+internal controller, permissions, command path, and tests remain unchanged.
+Existing detailed presentation components remain available internally, while the
+normal comparison uses a compact view and collapsed measurement/settings details.
+No engine algorithms, retry rules, overload thresholds, or experiment calculations
+change in this refinement. There are no new packages.
+
+### Named, stable 3D graph
+
+`createDisplayGraph` owns its display coordinates. It assigns service tiers from
+provider relationships, including pool membership for layout, then spaces siblings
+by provider position. It fixes x/y/z coordinates for each node, with a small depth
+variation. These coordinates never enter simulation state. The resulting 3D scene
+is an intentional layered diagram rather than a continuously moving force layout.
+Status/selection updates retain graph objects, layout, and camera. Initial fitting
+runs once; Fit and Reset Camera remain explicit camera-only operations.
+
+`GraphLabels` renders every service name and actual status as a sharp DOM label.
+Positions come from the graph's supported `graph2ScreenCoords` API, updated on
+camera changes, initial graph updates, viewport changes, and status/selection.
+No Three.js/sprite-text dependency is added. A bounded placement pass prioritizes
+the selected label and tries nearby positions to reduce overlap. Labels behind the
+camera or outside its viewport are hidden. Extreme viewing angles can still crowd
+labels; Fit or Reset Camera restores a clearer view. Clicking a name uses the same
+service selection action as the inventory. Animation-frame callbacks and camera
+listeners are cleaned up on unmount. Node colors always reflect actual state;
+selection uses size/blue label framing without replacing the service status color.
+
+### Forecasts are dry runs, not simulation commands
+
+After a confirmed failure, `predictIncident` clones both scenario and application
+state, including retry cohorts, breaker state, and controller history. It replays
+at most **six** ordinary `reduceAppState(..., { type: "step" })` actions, capped by
+`maxTicks`. It records the first worsening transition to degraded/offline for each
+service. Already confirmed outages, improvements, and mere reachability are not
+reported as predicted failures. This uses the same engine and optional controller
+path as actual playback; there is no second simulation engine or new failure rule.
+The live state, live event log, selection, and controller budgets remain untouched.
+
+Forecasts refresh after actual engine progress, repairs, or controller configuration
+changes. Reset/workload changes clear them. Skip observes real steps as before and
+computes a fresh forecast at the resulting state. Errors yield an unavailable
+forecast with no guessed impacts. There are no random or wall-clock inputs.
+
+Approximate warning time is `futureSteps * playbackIntervalMs / 1000`, rounded to
+one decimal place. Playback and predictions share the same **800 ms** interval
+constant: one future step is approximately 0.8s of playback, two are 1.6s. This is
+**presentation time**, not a promise of wall-clock latency or simulated service
+response time. While paused/manual, warnings use steps rather than a running
+seconds countdown. Changing traffic, repairing a service, pausing, or future user
+commands can change the outlook. Forecasts assume current conditions continue and
+do not foresee unscheduled user actions. The six-step horizon is not proof of
+safety beyond it.
+
+### One readable warning surface
+
+The graph-integrated warning panel separates:
+
+- **CONFIRMED NOW:** actual current service status, initially the injected failure.
+  Recovery started means a real local restart; restored means actual healthy status.
+- **AT RISK NEXT:** the cloned model predicts a worsening transition next step.
+- **POSSIBLE CASCADE:** a later dry-run transition, or a reachable connection with
+  explicitly unknown timing. Reachability alone never becomes a timed prediction.
+
+At most four forecast cards show a mix of immediate/later impacts, with an actual
+remaining-predictions count. Current downstream impacts replace forecasts as real
+steps occur. Minimize/Show warnings changes local presentation only; graph input,
+Step/Pause/Reset, and the inspector remain available. The panel scrolls within a
+bounded graph-local area and automatically compacts after playback ends. Reduced
+motion disables its entrance animation. No sound, fake telemetry, or external
+monitoring is introduced.
+
+`ProductTimeline` displays confirmed status changes, overload starts, and repair
+commands in real order, with simulated time. It avoids duplicate degraded/restart
+rows when another event already explains that transition. It shows up to 80 recent
+entries, follows new entries unless scrolled back, and leaves the complete engine
+history unchanged. Predictions never appear as confirmed timeline events.
+
+The palette now uses near-black graphite, electric blue, amber risk, red outages,
+and semantic healthy/recovery colors. The layout gives the graph more space and
+removes long normal-dashboard explanations. Recovery results keep their calculated
+values, with concise primary rows and expandable details. The full historical
+technical components are retained for compatibility and existing tests.
+
+Verification covers dry-run immutability, actual future transitions, interval
+conversion, bounded horizons, unavailable forecasts, paused warnings, persistent
+labels, fixed display coordinates, main-panel removal, readable timelines, and
+unchanged legacy behavior. Browser access remains unavailable, so live WebGL,
+label overlap, minimization, and responsive visual checks still require a browser.
+No visual verification is claimed for this environment.
+
+### Compact perimeter warnings
+
+The large graph warning panel is replaced by one small box per currently affected
+service, distributed around the top, right, bottom, and left edges of the graph.
+The center is left clear, and only the Minimize/Show control accepts pointer input.
+Confirmed boxes use actual status colors; distinct amber boxes retain bounded
+forecast timing. Each service appears once. Boxes stay expanded after playback
+settles so latched outages remain visible, until the user minimizes them. The
+current twelve-service scenario fits unique perimeter slots; compact responsive
+styles and reduced-motion behavior are retained. Simulation and prediction rules
+are unchanged.
+
+### Amber palette, dedicated card rails, and two-second pacing
+
+The current color treatment follows the supplied reference's charcoal, amber,
+orange, warm cream, and rust accents. Existing font families and typography are
+retained. Semantic service colors remain distinguishable and text contrast is
+covered by the existing palette tests.
+
+Warning boxes now occupy dedicated space outside `.graph-safe-area`. That central
+viewport clips the canvas, node labels, and graph controls. Desktop reserves side,
+top, and bottom rails; narrower layouts move warnings into rows above/below the
+graph. The frame is always reserved, so starting/minimizing an incident does not
+resize the graph or reset the camera. Card slots remain stable per service within
+an incident. Extra panel height preserves a usable central graph on small screens.
+
+Automatic playback now advances one actual step every **2 seconds**. Forecasts use
+that same constant: one predicted step is about 2 seconds of playback, two are
+about 4 seconds. Timing tests were updated to the new requested interval without
+changing model outcomes. Explicit manual Step and Skip still act immediately.
+
+A separate UI reveal queue introduces new warning boxes at least **2 seconds apart**.
+The trigger appears first; future risks are prioritized next so there is time to
+act. Existing visible cards update immediately with real status changes. Pending
+cards always read current state when shown, so an expired forecast is not displayed
+as a future failure. Live graph status and counts are never delayed by the reveal
+queue. Queued cards can continue appearing after playback settles; minimize, reset,
+new incidents, and unmount cancel pending presentation timers. StrictMode setup and
+cleanup cannot produce duplicate reveals. Reduced motion removes entrance movement
+while preserving the reading gap.
+
+Forecast wording distinguishes "May go down in ~4 seconds" from "May degrade";
+paused playback uses step counts. "Please repair [service]" follows actual failed
+providers or failed gateway pool members. Dependency-only outages are not offered
+as repair targets; recovering/healthy services are not falsely suggested for repair.
+This is an actionable suggestion, not a guarantee that one repair prevents all
+predicted impact. When no failed repair target exists, cards suggest pausing and
+reviewing load. At the engine limit they suggest Reset.
+
+The fonts, simulation rules, retry/controller algorithms, and unique-request
+accounting are unchanged. Browser automation remains unavailable here; geometry
+is separated structurally and covered by boundary assertions, with manual visual
+checks still recommended at the target viewport sizes.

@@ -22,7 +22,7 @@ describe("incident presentation", () => {
     expect(html).toContain("Skip to End");
     expect(html).toContain("All impact is calculated by the local simulator");
     expect(html).not.toContain("FAULT INJECTED");
-    expect(html).toContain("800 ms");
+    expect(html).toContain("2 seconds");
   });
 
   it("shows a brief nonmodal injection notice and no fabricated dependency cards", () => {
@@ -94,3 +94,4 @@ describe("incident presentation", () => {
     expect(simpleHtml).not.toContain("Available gateway capacity");
   });
 });
+

@@ -2,11 +2,14 @@ import { Component, lazy, memo, Suspense, useCallback, useEffect, useMemo, useRe
 import type { ReactNode } from "react";
 import type { ForceGraphMethods } from "react-force-graph-3d";
 import type { ServiceId, SimulationScenario, SimulationState } from "../simulation/types";
-import { nodeAppearance, nodeTooltip, toGraphData } from "./toGraphData";
+import { nodeAppearance, nodeTooltip } from "./toGraphData";
 import type { GraphLink, GraphNode } from "./toGraphData";
 import { fitNetwork, resetNetworkCamera } from "./graphView";
 import { UI_COLORS } from "../theme";
 import { linkTooltip } from "./toGraphData";
+import { createDisplayGraph, placeGraphLabels } from "./displayLayout";
+import type { ProjectedLabel } from "./displayLayout";
+import { GraphLabels } from "./GraphLabels";
 
 const ForceGraph3D = lazy(async () => {
   const module = await import("react-force-graph-3d");
@@ -48,9 +51,61 @@ function Network({ scenario, state, selectedId, onSelect, recentIds }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<ForceGraphMethods<GraphNode, GraphLink> | undefined>(undefined);
   const fitted = useRef(false);
+  const labelRef = useRef<HTMLDivElement>(null);
+  const listenerCleanup = useRef<(() => void) | null>(null);
+  const boundGraph = useRef<ForceGraphMethods<GraphNode, GraphLink> | undefined>(undefined);
+  const labelFrame = useRef<number | null>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [contextLost, setContextLost] = useState(false);
-  const graphData = useMemo(() => toGraphData(scenario), [scenario]);
+  const graphData = useMemo(() => createDisplayGraph(scenario), [scenario]);
+  const selectedRef = useRef(selectedId);
+  selectedRef.current = selectedId;
+
+  const updateLabels = useCallback(() => {
+    const graph = graphRef.current;
+    if (!graph || !labelRef.current) return;
+    const labels: ProjectedLabel[] = [];
+    const elements = new Map<string, HTMLElement>();
+    const camera = graph.camera() as { position?: { x: number; y: number; z: number } } | undefined;
+    if (!camera?.position) return;
+    const target = (graph.controls() as { target?: { x: number; y: number; z: number } } | undefined)?.target;
+    for (const element of labelRef.current.querySelectorAll<HTMLElement>("[data-service-id]")) {
+      const id = element.dataset.serviceId!;
+      const node = graphData.nodes.find((item) => item.id === id)!;
+      const point = graph.graph2ScreenCoords(node.x ?? 0, node.y ?? 0, node.z ?? 0);
+      const inFront = !target || ((node.x ?? 0) - camera.position.x) * (target.x - camera.position.x)
+        + ((node.y ?? 0) - camera.position.y) * (target.y - camera.position.y) + ((node.z ?? 0) - camera.position.z) * (target.z - camera.position.z) > 0;
+      const visible = inFront && Number.isFinite(point.x) && Number.isFinite(point.y) && point.x >= 0 && point.x <= size.width && point.y >= 0 && point.y <= size.height;
+      element.style.visibility = visible ? "visible" : "hidden";
+      if (visible) { labels.push({ id, x: point.x, y: point.y, width: element.offsetWidth, height: element.offsetHeight }); elements.set(id, element); }
+    }
+    for (const label of placeGraphLabels(labels, size.width, size.height, selectedRef.current)) {
+      elements.get(label.id)!.style.transform = `translate(${Math.round(label.left)}px, ${Math.round(label.top)}px)`;
+    }
+  }, [graphData, size]);
+  const refreshLabels = useCallback(() => {
+    if (labelFrame.current !== null) cancelAnimationFrame(labelFrame.current);
+    labelFrame.current = requestAnimationFrame(() => { labelFrame.current = null; updateLabels(); });
+  }, [updateLabels]);
+  const bindGraph = useCallback(() => {
+    const instance = graphRef.current;
+    if (!instance || instance === boundGraph.current) { refreshLabels(); return; }
+    listenerCleanup.current?.();
+    const controls = instance.controls() as { addEventListener?: (type: string, callback: () => void) => void; removeEventListener?: (type: string, callback: () => void) => void } | undefined;
+    if (!controls?.addEventListener || !controls.removeEventListener) return;
+    boundGraph.current = instance;
+    controls.addEventListener("change", refreshLabels);
+    listenerCleanup.current = () => controls.removeEventListener?.("change", refreshLabels);
+    refreshLabels();
+  }, [refreshLabels]);
+  useEffect(() => { refreshLabels(); }, [selectedId, state, refreshLabels]);
+  useEffect(() => {
+    bindGraph();
+    return () => {
+      listenerCleanup.current?.(); boundGraph.current = undefined;
+      if (labelFrame.current !== null) cancelAnimationFrame(labelFrame.current);
+    };
+  }, [bindGraph]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -86,8 +141,8 @@ function Network({ scenario, state, selectedId, onSelect, recentIds }: Props) {
     link.consumerId === selectedId || link.providerId === selectedId ? 1.8 : link.kind === "optional" ? 0.7 : 1, [selectedId]);
   const linkLabel = useCallback((link: GraphLink) => linkTooltip(link, scenario), [scenario]);
   const onNodeClick = useCallback((node: GraphNode) => onSelect(node.id), [onSelect]);
-  const fitView = useCallback(() => fitNetwork(graphRef.current, size.width, size.height, 0.035), [size.width, size.height]);
-  const resetView = useCallback(() => resetNetworkCamera(graphRef.current, size.width, size.height), [size.width, size.height]);
+  const fitView = useCallback(() => { const result = fitNetwork(graphRef.current, size.width, size.height, 0.06); refreshLabels(); return result; }, [size.width, size.height, refreshLabels]);
+  const resetView = useCallback(() => { resetNetworkCamera(graphRef.current, size.width, size.height); refreshLabels(); }, [size.width, size.height, refreshLabels]);
   const fitOnce = useCallback(() => {
     if (!fitted.current) fitted.current = fitView();
   }, [fitView]);
@@ -105,8 +160,8 @@ function Network({ scenario, state, selectedId, onSelect, recentIds }: Props) {
             nodeLabel={nodeLabel}
             nodeColor={nodeColor}
             nodeVal={nodeVal}
-            nodeRelSize={8}
-            nodeResolution={20}
+            nodeRelSize={10}
+            nodeResolution={24}
             nodeOpacity={1}
             linkColor={linkColor}
             linkLabel={linkLabel}
@@ -116,9 +171,10 @@ function Network({ scenario, state, selectedId, onSelect, recentIds }: Props) {
             linkDirectionalArrowRelPos={0.72}
             linkDirectionalArrowColor={linkColor}
             linkDirectionalArrowResolution={6}
-            warmupTicks={80}
-            cooldownTicks={100}
-            onEngineStop={fitOnce}
+            warmupTicks={0}
+            cooldownTicks={1}
+            onEngineTick={bindGraph}
+            onEngineStop={() => { bindGraph(); fitOnce(); }}
             onNodeClick={onNodeClick}
             showNavInfo={false}
             enableNodeDrag={false}
@@ -126,6 +182,7 @@ function Network({ scenario, state, selectedId, onSelect, recentIds }: Props) {
           />
         </Suspense>
       )}
+      {!contextLost && <GraphLabels graph={graphData} state={state} selectedId={selectedId} onSelect={onSelect} containerRef={labelRef} />}
       {!contextLost && (
         <div className="graph-camera-controls">
           <button className="button button-quiet" type="button" onClick={fitView} title="Frame the current layout without changing its orientation">Fit network</button>

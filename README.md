@@ -270,3 +270,35 @@ its rules. Recovery tables mark differing values without declaring a winner.
 Simulation, comparison calculations, and playback behavior are unchanged. Browser
 access is unavailable here, so visual checks at 1440, 1280, and 768 px remain manual.
 See the architecture for the full visual verification checklist.
+
+## Command-center interface
+
+The normal dashboard is now focused on the named 3D network, selected service,
+Fail/Repair/Step/Reset, live warnings, incident timeline, and recovery lab. AUTOPILOT
+is preserved internally but has no visible main panel. Short labels replace the
+technical dashboard wording; detailed comparison settings remain expandable.
+
+A confirmed failure opens a graph-local warning panel. **Confirmed now** shows real
+status. **At risk next** and **Possible cascade** come from a six-step dry run of
+the existing engine on cloned state. Approximate seconds use the 800 ms playback
+interval; paused warnings use steps instead. Predictions assume no new user action
+and never change the live simulation. Unknown timing is labeled as unknown.
+Minimize warnings to inspect the network freely; normal controls stay available.
+
+Service names remain on the graph, with actual status colors and a fixed layered
+3D layout. Fit/Reset Camera do not advance time or move service positions. Extreme
+camera angles may crowd labels. The local browser automation host is unavailable,
+so interactive graph/layout checks remain manual.
+
+## Current amber appearance and warning pacing
+
+The supplied reference informed a charcoal/amber/orange palette, with the existing
+fonts retained. Warning boxes live in dedicated rails outside the graph viewport,
+so they cannot cover nodes or labels. On narrower screens the rails become rows
+above and below the graph.
+
+Automatic steps and new warning appearances are spaced by two seconds. Current
+service states still update truthfully; new boxes reveal one at a time. Forecasts
+say, for example, "May go down in ~4 seconds — please repair API Gateway," using
+actual dry-run timing and currently failed repair targets. Paused forecasts use
+steps instead of a running seconds estimate. Manual Step/Skip remain immediate.
