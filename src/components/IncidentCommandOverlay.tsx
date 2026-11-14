@@ -5,6 +5,7 @@ import type { ServiceStatus, SimulationScenario } from "../simulation/types";
 import { currentImpact, incidentOngoing } from "../incident/incidentState";
 import { useWarningCadence } from "../hooks/useWarningCadence";
 import { repairTarget } from "./repairAdvice";
+import { ServiceIcon } from "./ServiceIcon";
 
 interface PerimeterCard {
   readonly serviceId: string;
@@ -79,7 +80,7 @@ export function IncidentCommandOverlay({ state, scenario }: { state: IncidentSta
           style={{ gridRow: slot.row, gridColumn: slot.column, "--compact-row": index < 6 ? Math.floor(index / 3) + 1 : Math.floor((index - 6) / 3) + 4,
             "--compact-column": index % 3 + 1, "--phone-row": index < 6 ? Math.floor(index / 2) + 1 : Math.floor((index - 6) / 2) + 5,
             "--phone-column": index % 2 + 1 } as CSSProperties} title={card.predicted ? `${name(card.serviceId)}: expected ${card.status} if current conditions continue. Approximate playback timing.` : `${name(card.serviceId)}: ${card.status}`}>
-          <span className="mini-card-category">{card.category}</span><h3>{name(card.serviceId)}</h3><strong>{card.detail}</strong>{advice && <p className="mini-card-advice">{state.app.simulation.tick >= scenario.config.maxTicks ? "Reset to continue." : advice}</p>}
+          <ServiceIcon serviceId={card.serviceId} className="warning-service-icon" /><span className="mini-card-category">{card.category}</span><h3>{name(card.serviceId)}</h3><strong>{card.detail}</strong>{advice && <p className="mini-card-advice">{state.app.simulation.tick >= scenario.config.maxTicks ? "Reset to continue." : advice}</p>}
         </article>;
       })}
     </div>}

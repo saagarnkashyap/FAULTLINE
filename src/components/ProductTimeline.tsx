@@ -10,9 +10,15 @@ export function ProductTimeline({ events, scenario }: { events: readonly Simulat
   const overloads = new Set(meaningful.filter((event) => event.type === "overload-started").map((event) => `${event.tick}:${event.serviceId}`));
   const entries = meaningful.filter((event) => !(event.type === "status-changed" && event.to === "recovering")
     && !(event.type === "status-changed" && event.to === "degraded" && overloads.has(`${event.tick}:${event.serviceId}`))).slice(-80);
-  useEffect(() => { if (!events.length) follow.current = true; if (viewport.current && follow.current) viewport.current.scrollTop = viewport.current.scrollHeight; }, [events.length]);
+  useEffect(() => {
+    if (!events.length) follow.current = true;
+    if (viewport.current && follow.current) { viewport.current.scrollTop = viewport.current.scrollHeight; viewport.current.scrollLeft = viewport.current.scrollWidth; }
+  }, [events.length]);
   return <div className="product-timeline" ref={viewport} tabIndex={0} role="region" aria-label="Incident timeline" onScroll={(event) => {
-    const element = event.currentTarget; follow.current = element.scrollHeight - element.scrollTop - element.clientHeight < 40;
+    const element = event.currentTarget;
+    follow.current = element.scrollWidth > element.clientWidth
+      ? element.scrollWidth - element.scrollLeft - element.clientWidth < 40
+      : element.scrollHeight - element.scrollTop - element.clientHeight < 40;
   }}>
     {!entries.length ? <p className="comparison-empty">No incidents yet.</p> : <ol>{entries.map((event, index) => {
       const status = event.type === "status-changed" ? event.to : event.type === "overload-started" ? "degraded" : "recovering";

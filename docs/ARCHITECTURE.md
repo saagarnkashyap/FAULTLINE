@@ -911,7 +911,7 @@ the complete engine log remains intact.
 
 Automatic playback is enabled by default, with a visible **Play automatically after
 Fail** checkbox for manual-only operation. Failure applies its engine tick first,
-then the UI schedules one additional Step every **800 ms**. Wall-clock delay only
+then the UI schedules one additional Step every **2,000 ms**. Wall-clock delay only
 controls presentation; simulation duration remains measured in integer ticks using
 the scenario's existing tick duration. Slow rendering never adds catch-up ticks.
 
@@ -1241,7 +1241,7 @@ computes a fresh forecast at the resulting state. Errors yield an unavailable
 forecast with no guessed impacts. There are no random or wall-clock inputs.
 
 Approximate warning time is `futureSteps * playbackIntervalMs / 1000`, rounded to
-one decimal place. Playback and predictions share the same **800 ms** interval
+one decimal place. Playback and predictions share the same **2,000 ms** interval
 constant: one future step is approximately 0.8s of playback, two are 1.6s. This is
 **presentation time**, not a promise of wall-clock latency or simulated service
 response time. While paused/manual, warnings use steps rather than a running
@@ -1299,12 +1299,7 @@ current twelve-service scenario fits unique perimeter slots; compact responsive
 styles and reduced-motion behavior are retained. Simulation and prediction rules
 are unchanged.
 
-### Amber palette, dedicated card rails, and two-second pacing
-
-The current color treatment follows the supplied reference's charcoal, amber,
-orange, warm cream, and rust accents. Existing font families and typography are
-retained. Semantic service colors remain distinguishable and text contrast is
-covered by the existing palette tests.
+### Dedicated card rails and two-second pacing
 
 Warning boxes now occupy dedicated space outside `.graph-safe-area`. That central
 viewport clips the canvas, node labels, and graph controls. Desktop reserves side,
@@ -1340,3 +1335,39 @@ The fonts, simulation rules, retry/controller algorithms, and unique-request
 accounting are unchanged. Browser automation remains unavailable here; geometry
 is separated structurally and covered by boundary assertions, with manual visual
 checks still recommended at the target viewport sizes.
+
+### Reference console layout and motion
+
+The primary reference now governs the screen composition: compact branding/status/
+workload/time bar, narrow service explorer, dominant network, service inspector,
+and a 108px horizontal timeline directly beneath the three panels. Duplicate large
+status counters are removed. Playback controls and impact metrics remain available
+in a collapsed **Incident controls & impact** section; Recovery lab remains below.
+The internal controller is not exposed on the main screen.
+
+`theme.ts` supplies graphite/navy surfaces, cyan network/interface accents, and
+separate green healthy, amber risk, red offline, and purple recovery colors. Existing
+Segoe UI and Consolas font families remain. Text/action contrast checks cover the
+new palette. Service icons are local SVGs; there are no external assets or libraries.
+
+The renderer-only layered layout is wider, with stable fixed coordinates. Larger
+spheres, named icon/status badges, brighter provider-state links, and larger direction
+arrows improve recognition. Selection updates appearance without rebuilding graph
+data or moving the camera. Fit Network and Reset Camera retain their existing
+camera-only behavior. Warning cards occupy smaller reserved rails (88px card rows),
+remain outside the clipped graph canvas, and preserve stable slots and two-second
+reveal spacing. Smaller screens stack cards above/below the canvas.
+
+Motion is limited to slow incident/node glows, brief card entrances, and one slow
+visual direction marker on each inspected connection. These markers do not encode
+request counts, actual traffic speed, or recovery progress. CSS and WebGL motion
+respect `prefers-reduced-motion`, including preference changes while mounted.
+No synthetic metrics, countdown precision, or recovery percentages are added.
+The horizontal timeline still displays only real model events, follows new entries
+unless the user scrolls back, and can be scrolled with the keyboard.
+
+Simulation, application reducer, scenario data, and dependencies are unchanged.
+Tests cover composition, warning-rail boundaries/cadence, current provider-state
+colors, immutable layout/state, camera helpers, and the full fail/repair/reset
+lifecycle. Browser visual review remains pending because the browser access host
+is unavailable in this environment.

@@ -1,5 +1,8 @@
 import type { SimulationScenario, SimulationState } from "../simulation/types";
 import { StatusBadge } from "./StatusBadge";
+import { ServiceIcon } from "./ServiceIcon";
+import { STATUS_PRESENTATION } from "../status";
+import type { CSSProperties } from "react";
 
 export function ServiceCard({ scenario, state, selectedId, onSelect, onFail, onRepair }: {
   scenario: SimulationScenario; state: SimulationState; selectedId: string | null;
@@ -13,7 +16,8 @@ export function ServiceCard({ scenario, state, selectedId, onSelect, onFail, onR
   const member = state.routingPool?.members[service.id];
   const atLimit = state.tick >= scenario.config.maxTicks;
   return <div className="service-card">
-    <div className="service-card-identity"><span className="service-glyph" aria-hidden="true">{service.name.slice(0, 2).toUpperCase()}</span><div><h3>{service.name}</h3><StatusBadge status={current.status} /></div></div>
+    <div className="service-card-identity"><span className="service-glyph" style={{ "--service-status": STATUS_PRESENTATION[current.status].color } as CSSProperties}><ServiceIcon serviceId={service.id} /></span><div><h3>{service.name}</h3><StatusBadge status={current.status} /></div></div>
+    <p className="service-card-description">{service.description}</p>
     <div className="fault-buttons">
       <button className="button button-danger" type="button" disabled={atLimit || current.local.kind === "failed"} onClick={onFail}>Fail service</button>
       <button className="button button-secondary" type="button" disabled={atLimit || current.local.kind !== "failed"} onClick={onRepair}>Repair</button>

@@ -2,7 +2,7 @@ import { Component, lazy, memo, Suspense, useCallback, useEffect, useMemo, useRe
 import type { ReactNode } from "react";
 import type { ForceGraphMethods } from "react-force-graph-3d";
 import type { ServiceId, SimulationScenario, SimulationState } from "../simulation/types";
-import { nodeAppearance, nodeTooltip } from "./toGraphData";
+import { linkAppearance, nodeAppearance, nodeTooltip } from "./toGraphData";
 import type { GraphLink, GraphNode } from "./toGraphData";
 import { fitNetwork, resetNetworkCamera } from "./graphView";
 import { UI_COLORS } from "../theme";
@@ -57,9 +57,18 @@ function Network({ scenario, state, selectedId, onSelect, recentIds }: Props) {
   const labelFrame = useRef<number | null>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [contextLost, setContextLost] = useState(false);
+  const [motionEnabled, setMotionEnabled] = useState(false);
   const graphData = useMemo(() => createDisplayGraph(scenario), [scenario]);
   const selectedRef = useRef(selectedId);
   selectedRef.current = selectedId;
+
+  useEffect(() => {
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setMotionEnabled(!preference.matches);
+    update();
+    preference.addEventListener("change", update);
+    return () => preference.removeEventListener("change", update);
+  }, []);
 
   const updateLabels = useCallback(() => {
     const graph = graphRef.current;
@@ -132,13 +141,10 @@ function Network({ scenario, state, selectedId, onSelect, recentIds }: Props) {
   const nodeColor = useCallback((node: GraphNode) => nodeAppearance(node.id, state, selectedId).color, [state, selectedId]);
   const nodeVal = useCallback((node: GraphNode) => nodeAppearance(node.id, state, selectedId, recentIds).size, [state, selectedId, recentIds]);
   const nodeLabel = useCallback((node: GraphNode) => nodeTooltip(node, state, selectedId), [state, selectedId]);
-  const linkColor = useCallback((link: GraphLink) => {
-    const related = link.consumerId === selectedId || link.providerId === selectedId;
-    return related ? UI_COLORS.interaction : link.kind === "required" ? UI_COLORS["link-required"]
-      : link.kind === "pool-member" ? UI_COLORS["link-pool"] : UI_COLORS["link-optional"];
-  }, [selectedId]);
-  const linkWidth = useCallback((link: GraphLink) =>
-    link.consumerId === selectedId || link.providerId === selectedId ? 1.8 : link.kind === "optional" ? 0.7 : 1, [selectedId]);
+  const linkColor = useCallback((link: GraphLink) => linkAppearance(link, state, selectedId).color, [state, selectedId]);
+  const linkWidth = useCallback((link: GraphLink) => linkAppearance(link, state, selectedId).width, [state, selectedId]);
+  // One slow marker on inspected connections, purely visual; it does not represent traffic.
+  const linkParticles = useCallback((link: GraphLink) => motionEnabled && (link.consumerId === selectedId || link.providerId === selectedId) ? 1 : 0, [motionEnabled, selectedId]);
   const linkLabel = useCallback((link: GraphLink) => linkTooltip(link, scenario), [scenario]);
   const onNodeClick = useCallback((node: GraphNode) => onSelect(node.id), [onSelect]);
   const fitView = useCallback(() => { const result = fitNetwork(graphRef.current, size.width, size.height, 0.06); refreshLabels(); return result; }, [size.width, size.height, refreshLabels]);
@@ -160,17 +166,21 @@ function Network({ scenario, state, selectedId, onSelect, recentIds }: Props) {
             nodeLabel={nodeLabel}
             nodeColor={nodeColor}
             nodeVal={nodeVal}
-            nodeRelSize={10}
+            nodeRelSize={12}
             nodeResolution={24}
             nodeOpacity={1}
             linkColor={linkColor}
             linkLabel={linkLabel}
             linkWidth={linkWidth}
             linkOpacity={0.9}
-            linkDirectionalArrowLength={4.5}
+            linkDirectionalArrowLength={6}
             linkDirectionalArrowRelPos={0.72}
             linkDirectionalArrowColor={linkColor}
             linkDirectionalArrowResolution={6}
+            linkDirectionalParticles={linkParticles}
+            linkDirectionalParticleColor={linkColor}
+            linkDirectionalParticleWidth={1.5}
+            linkDirectionalParticleSpeed={0.002}
             warmupTicks={0}
             cooldownTicks={1}
             onEngineTick={bindGraph}

@@ -1,5 +1,6 @@
 import type { ServiceId, SimulationScenario, SimulationState } from "../simulation/types";
 import { STATUS_PRESENTATION } from "../status";
+import { UI_COLORS } from "../theme";
 
 // These objects belong to the renderer. Physics may add coordinates or replace endpoints.
 export interface GraphNode {
@@ -79,4 +80,14 @@ export function linkTooltip(link: GraphLink, scenario: SimulationScenario): stri
   const name = (id: string) => escapeTooltip(scenario.nodes.find((node) => node.id === id)?.name ?? id);
   return `<strong>${name(link.consumerId)} → ${name(link.providerId)}</strong><br>${link.kind === "pool-member"
     ? "Pool membership · either backend can serve" : `${link.kind === "required" ? "Required" : "Optional"} dependency · consumer depends on provider`}`;
+}
+
+/** A link reports its provider's current state, not a predicted consumer failure. */
+export function linkAppearance(link: GraphLink, state: SimulationState, selectedId: ServiceId | null) {
+  const related = link.consumerId === selectedId || link.providerId === selectedId;
+  const provider = state.services[link.providerId]?.status;
+  const color = provider && provider !== "healthy" ? STATUS_PRESENTATION[provider].color
+    : related ? UI_COLORS.text : link.kind === "required" ? UI_COLORS["link-required"]
+      : link.kind === "pool-member" ? UI_COLORS["link-pool"] : UI_COLORS["link-optional"];
+  return { color, width: related ? 1.8 : link.kind === "optional" ? .7 : 1 };
 }

@@ -226,7 +226,7 @@ outperforms ID priority. See the architecture for exact metric definitions.
 ## INCIDENT ZERO playback
 
 Click **Fail service** to apply the real fail command, show a brief graph-local
-warning, and automatically observe one engine tick every 800 ms. Pause, Resume,
+warning, and automatically observe one engine tick every 2 seconds. Pause, Resume,
 or Skip to End from the INCIDENT ZERO panel. Turn off **Play automatically after
 Fail** for manual-only stepping. Manual commands/controller changes pause playback
 and accept your action; Reset and workload changes cancel it. Existing AUTOPILOT
@@ -280,7 +280,7 @@ technical dashboard wording; detailed comparison settings remain expandable.
 
 A confirmed failure opens a graph-local warning panel. **Confirmed now** shows real
 status. **At risk next** and **Possible cascade** come from a six-step dry run of
-the existing engine on cloned state. Approximate seconds use the 800 ms playback
+the existing engine on cloned state. Approximate seconds use the 2-second playback
 interval; paused warnings use steps instead. Predictions assume no new user action
 and never change the live simulation. Unknown timing is labeled as unknown.
 Minimize warnings to inspect the network freely; normal controls stay available.
@@ -290,15 +290,18 @@ Service names remain on the graph, with actual status colors and a fixed layered
 camera angles may crowd labels. The local browser automation host is unavailable,
 so interactive graph/layout checks remain manual.
 
-## Current amber appearance and warning pacing
+## Current appearance and warning pacing
 
-The supplied reference informed a charcoal/amber/orange palette, with the existing
-fonts retained. Warning boxes live in dedicated rails outside the graph viewport,
-so they cannot cover nodes or labels. On narrower screens the rails become rows
-above and below the graph.
+The main screen follows the supplied command-console reference: a compact header,
+service list, dominant network, inspector, and short horizontal timeline. Cyan
+accents sit on navy/graphite surfaces; red, amber, green, and purple report actual
+service states. Fonts stay unchanged. Playback controls and impact metrics are
+under **Incident controls & impact**. Local service icons, clearer direction arrows,
+and restrained glows improve recognition. Inspected connections carry a slow visual
+direction marker, not measured traffic. All motion respects reduced-motion settings.
+Warning rails stay outside the graph, and new notices remain two seconds apart.
 
-Automatic steps and new warning appearances are spaced by two seconds. Current
-service states still update truthfully; new boxes reveal one at a time. Forecasts
-say, for example, "May go down in ~4 seconds — please repair API Gateway," using
-actual dry-run timing and currently failed repair targets. Paused forecasts use
-steps instead of a running seconds estimate. Manual Step/Skip remain immediate.
+Forecasts still say, for example, "May go down in ~4 seconds ? please repair API
+Gateway," using actual dry-run timing and currently failed repair targets. Paused
+forecasts use steps. Manual Step/Skip remain immediate, and current graph status
+is never delayed by the notice reveal queue.

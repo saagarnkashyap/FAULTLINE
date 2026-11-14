@@ -103,10 +103,10 @@ describe("amber warning cadence and safe frame", () => {
     // Cards start 12px from an edge and are at most 144px wide; plot starts at 168px.
     expect(12 + 144).toBeLessThan(GRAPH_FRAME.side);
     // Top/bottom fixed card rows end before the clipped center begins.
-    expect(48 + GRAPH_FRAME.cardHeight).toBeLessThan(GRAPH_FRAME.top);
-    expect(52 + GRAPH_FRAME.cardHeight).toBeLessThan(GRAPH_FRAME.bottom);
+    expect(40 + GRAPH_FRAME.cardHeight).toBeLessThan(GRAPH_FRAME.top);
+    expect(32 + GRAPH_FRAME.cardHeight).toBeLessThan(GRAPH_FRAME.bottom);
     // Narrow layouts place two complete card rows above and below the graph.
-    expect(48 + 2 * GRAPH_FRAME.cardHeight + 8).toBeLessThan(GRAPH_FRAME.compactTop);
-    expect(52 + 2 * GRAPH_FRAME.cardHeight + 8).toBeLessThan(GRAPH_FRAME.compactBottom);
+    expect(40 + 2 * GRAPH_FRAME.cardHeight + 8).toBeLessThan(GRAPH_FRAME.compactTop);
+    expect(32 + 2 * GRAPH_FRAME.cardHeight + 8).toBeLessThan(GRAPH_FRAME.compactBottom);
   });
 });

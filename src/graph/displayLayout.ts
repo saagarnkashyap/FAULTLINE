@@ -26,8 +26,8 @@ export function createDisplayGraph(scenario: SimulationScenario) {
     };
     row.sort((a, b) => center(a.id) - center(b.id) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
     row.forEach((node, index) => {
-      const x = (index - (row.length - 1) / 2) * 136;
-      const y = (maximum / 2 - level) * 118;
+      const x = (index - (row.length - 1) / 2) * 176;
+      const y = (maximum / 2 - level) * 96;
       const z = (index % 2 ? 1 : -1) * 24;
       Object.assign(node, { x, y, z, fx: x, fy: y, fz: z });
       placed.set(node.id, x);
@@ -44,12 +44,16 @@ export function placeGraphLabels(labels: readonly ProjectedLabel[], width: numbe
   const occupied: { left: number; top: number; width: number; height: number }[] = [];
   return [...labels].sort((a, b) => Number(b.id === selectedId) - Number(a.id === selectedId)).map((label) => {
     const candidates = [
-      { left: label.x - label.width / 2, top: label.y + 19 },
-      { left: label.x - label.width / 2, top: label.y - label.height - 19 },
+      { left: label.x - label.width / 2, top: label.y + 27 },
+      { left: label.x - label.width / 2, top: label.y - label.height - 27 },
       { left: label.x + 22, top: label.y - label.height / 2 },
       { left: label.x - label.width - 22, top: label.y - label.height / 2 },
+      { left: label.x - label.width / 2, top: label.y + label.height + 27 },
+      { left: label.x - label.width / 2, top: label.y - 2 * label.height - 27 },
+      { left: label.x + 22, top: label.y + 22 },
+      { left: label.x - label.width - 22, top: label.y - label.height - 22 },
     ].map((point) => ({ left: Math.max(8, Math.min(width - label.width - 8, point.left)),
-      top: Math.max(40, Math.min(height - label.height - 88, point.top)), width: label.width, height: label.height }));
+      top: Math.max(40, Math.min(height - label.height - 44, point.top)), width: label.width, height: label.height }));
     const chosen = candidates.find((candidate) => occupied.every((other) => candidate.left + candidate.width + 4 < other.left
       || other.left + other.width + 4 < candidate.left || candidate.top + candidate.height + 4 < other.top || other.top + other.height + 4 < candidate.top)) ?? candidates[0]!;
     occupied.push(chosen);
