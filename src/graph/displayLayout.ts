@@ -1,9 +1,26 @@
 import type { SimulationScenario } from "../simulation/types";
 import { toGraphData } from "./toGraphData";
 
-/** Fixed, layered display coordinates. These belong only to the renderer. */
+
+// Display coordinates only. The topology and every status still come from the scenario/engine.
+const enterprisePositions: Record<string, readonly [number, number, number]> = {
+  identity: [-70, 240, -4], notifications: [780, 240, 6],
+  documents: [-650, 35, 4], email: [-350, 60, -4],
+  "gateway-a": [220, 45, -6], "gateway-b": [500, 40, 4], billing: [760, -130, -4],
+  gateway: [100, -175, 8], assistant: [-580, -315, 4], support: [-270, -300, -4],
+  crm: [400, -330, 4], calendar: [60, -500, -4],
+};
+
+/** Fixed renderer-owned coordinates; the default topology uses staggered 2.5D bands. */
 export function createDisplayGraph(scenario: SimulationScenario) {
   const graph = toGraphData(scenario);
+  if (graph.nodes.length === 12 && graph.nodes.every(({ id }) => enterprisePositions[id])) {
+    for (const node of graph.nodes) {
+      const [x, y, z] = enterprisePositions[node.id]!;
+      Object.assign(node, { x, y, z, fx: x, fy: y, fz: z });
+    }
+    return graph;
+  }
   const providers = new Map(scenario.nodes.map(({ id }) => [id, scenario.dependencies.filter(({ consumerId }) => consumerId === id).map(({ providerId }) => providerId)]));
   if (scenario.routingPool) providers.get(scenario.routingPool.serviceId)!.push(...scenario.routingPool.memberIds);
   const depths = new Map<string, number>();
@@ -39,24 +56,34 @@ export function createDisplayGraph(scenario: SimulationScenario) {
 export interface ProjectedLabel { readonly id: string; readonly x: number; readonly y: number; readonly width: number; readonly height: number }
 export interface PlacedLabel { readonly id: string; readonly left: number; readonly top: number }
 
-/** Try nearby readable positions before accepting overlap at extreme camera angles. */
-export function placeGraphLabels(labels: readonly ProjectedLabel[], width: number, height: number, selectedId: string | null): PlacedLabel[] {
-  const occupied: { left: number; top: number; width: number; height: number }[] = [];
-  return [...labels].sort((a, b) => Number(b.id === selectedId) - Number(a.id === selectedId)).map((label) => {
-    const candidates = [
-      { left: label.x - label.width / 2, top: label.y + 27 },
-      { left: label.x - label.width / 2, top: label.y - label.height - 27 },
-      { left: label.x + 22, top: label.y - label.height / 2 },
-      { left: label.x - label.width - 22, top: label.y - label.height / 2 },
-      { left: label.x - label.width / 2, top: label.y + label.height + 27 },
-      { left: label.x - label.width / 2, top: label.y - 2 * label.height - 27 },
-      { left: label.x + 22, top: label.y + 22 },
-      { left: label.x - label.width - 22, top: label.y - label.height - 22 },
-    ].map((point) => ({ left: Math.max(8, Math.min(width - label.width - 8, point.left)),
-      top: Math.max(40, Math.min(height - label.height - 44, point.top)), width: label.width, height: label.height }));
-    const chosen = candidates.find((candidate) => occupied.every((other) => candidate.left + candidate.width + 4 < other.left
-      || other.left + other.width + 4 < candidate.left || candidate.top + candidate.height + 4 < other.top || other.top + other.height + 4 < candidate.top)) ?? candidates[0]!;
-    occupied.push(chosen);
-    return { id: label.id, left: chosen.left, top: chosen.top };
-  });
+/** Badges belong to their actual anchors. Never repack a network into a card grid. */
+export function placeGraphLabels(labels: readonly ProjectedLabel[], _width: number, _height: number, _selectedId: string | null): PlacedLabel[] {
+  return labels.map((label) => ({ id: label.id, left: label.x - label.width / 2, top: label.y - label.height / 2 }));
+}
+
+export interface GraphBounds { readonly id: string; readonly left: number; readonly top: number; readonly width: number; readonly height: number }
+export interface GraphLayout { readonly width: number; readonly height: number; readonly nodes: readonly GraphBounds[] }
+
+export function overlaps(a: Omit<GraphBounds, "id">, b: Omit<GraphBounds, "id">, gap = 8): boolean {
+  return a.left < b.left + b.width + gap && b.left < a.left + a.width + gap
+    && a.top < b.top + b.height + gap && b.top < a.top + a.height + gap;
+}
+
+/** Float only a few actionable notices; anything without a clear slot belongs in the log. */
+export function placeIncidentCards(ids: readonly string[], layout: GraphLayout): Map<string, GraphBounds> {
+  const result = new Map<string, GraphBounds>();
+  // Reserve extra height for wrapped forecast/advice text; floating content is capped below this envelope.
+  const width = Math.min(210, Math.max(170, layout.width * .22)), height = 136;
+  const occupied = [...layout.nodes, { id: "camera-controls", left: layout.width - 340, top: layout.height - 50, width: 328, height: 42 }];
+  const candidates: Omit<GraphBounds, "id">[] = [];
+  for (let y = 80; y + height < layout.height - 54; y += 24) {
+    candidates.push({ left: 14, top: y, width, height }, { left: layout.width - width - 14, top: y, width, height });
+  }
+  for (const id of ids) {
+    if (result.size >= 3) break;
+    const candidate = candidates.find((rect) => occupied.every((obstacle) => !overlaps(rect, obstacle, 12)));
+    if (!candidate) continue;
+    const rect = { id, ...candidate }; result.set(id, rect); occupied.push(rect);
+  }
+  return result;
 }

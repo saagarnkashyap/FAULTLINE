@@ -9,6 +9,8 @@ import { createIncidentState, reduceIncidentState } from "../incident/incidentSt
 import { STATUS_PRESENTATION } from "../status";
 import { THEME_STYLE, UI_COLORS } from "../theme";
 import { fitNetwork, resetNetworkCamera } from "../graph/graphView";
+import { PerspectiveCamera, Vector3 } from "three";
+import { createDisplayGraph } from "../graph/displayLayout";
 import { linkTooltip } from "../graph/toGraphData";
 import { incidentNoticeTone } from "./incidentPresentation";
 import { IncidentAlerts } from "./IncidentAlerts";
@@ -38,17 +40,18 @@ describe("Phase 5B presentation", () => {
     }
   });
 
-  it("fits more tightly and resets only the camera when explicitly requested", () => {
-    const graph = { cameraPosition: vi.fn(), zoomToFit: vi.fn() };
-    fitNetwork(graph, 700, 500, .035);
-    expect(graph.zoomToFit).toHaveBeenLastCalledWith(0, 17);
-    expect(graph.cameraPosition).not.toHaveBeenCalled();
-    expect(resetNetworkCamera(graph, 700, 500)).toBe(true);
-    expect(graph.cameraPosition).toHaveBeenCalledExactlyOnceWith({ x: 0, y: 0, z: 600 }, { x: 0, y: 0, z: 0 }, 0);
-    expect(graph.cameraPosition.mock.invocationCallOrder[0]).toBeLessThan(graph.zoomToFit.mock.invocationCallOrder[1]!);
-    expect(resetNetworkCamera(undefined, 700, 500)).toBe(false);
-    expect(resetNetworkCamera(graph, 0, 500)).toBe(false);
-    expect(graph.cameraPosition).toHaveBeenCalledTimes(1);
+  it("fits module bounds and changes only the camera on an explicit request", () => {
+    const camera = new PerspectiveCamera(50, 1, .1, 10000); camera.position.set(0, 0, 600);
+    const graph = { camera: () => camera, controls: () => ({ target: new Vector3() }), cameraPosition: vi.fn() };
+    const nodes = createDisplayGraph(failchainScenario).nodes;
+    const before = structuredClone(nodes);
+    expect(fitNetwork(graph, 700, 500, nodes)).toBe(true);
+    expect(graph.cameraPosition.mock.calls[0]![2]).toBe(500);
+    expect(resetNetworkCamera(graph, 700, 500, nodes)).toBe(true);
+    expect(nodes).toEqual(before);
+    expect(resetNetworkCamera(undefined, 700, 500, nodes)).toBe(false);
+    expect(resetNetworkCamera(graph, 0, 500, nodes)).toBe(false);
+    expect(graph.cameraPosition).toHaveBeenCalledTimes(2);
   });
 
   it("explains link direction and membership while escaping scenario names in HTML tooltips", () => {

@@ -99,14 +99,7 @@ describe("amber warning cadence and safe frame", () => {
   it("reserves disjoint card rails and a separate clipped graph viewport", () => {
     const html = renderToStaticMarkup(createElement(App));
     expect(html).toContain('class="graph-safe-area"');
-    expect(GRAPH_FRAME_STYLE).toMatchObject({ "--warning-side": `${GRAPH_FRAME.side}px`, "--warning-card-height": `${GRAPH_FRAME.cardHeight}px` });
-    // Cards start 12px from an edge and are at most 144px wide; plot starts at 168px.
-    expect(12 + 144).toBeLessThan(GRAPH_FRAME.side);
-    // Top/bottom fixed card rows end before the clipped center begins.
-    expect(40 + GRAPH_FRAME.cardHeight).toBeLessThan(GRAPH_FRAME.top);
-    expect(32 + GRAPH_FRAME.cardHeight).toBeLessThan(GRAPH_FRAME.bottom);
-    // Narrow layouts place two complete card rows above and below the graph.
-    expect(40 + 2 * GRAPH_FRAME.cardHeight + 8).toBeLessThan(GRAPH_FRAME.compactTop);
-    expect(32 + 2 * GRAPH_FRAME.cardHeight + 8).toBeLessThan(GRAPH_FRAME.compactBottom);
+    expect(GRAPH_FRAME).toMatchObject({ side: 0, top: 0, bottom: 0 });
+    expect(GRAPH_FRAME_STYLE).toMatchObject({ "--warning-card-width": "210px", "--warning-card-height": "96px" });
   });
 });

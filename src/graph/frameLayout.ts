@@ -1,10 +1,7 @@
 import type { CSSProperties } from "react";
 
-/** Reserved card rails surround, but never occupy, the clipped graph viewport. */
-export const GRAPH_FRAME = { side: 168, top: 148, bottom: 136, cardHeight: 88, compactSide: 12, compactTop: 244, compactBottom: 244 } as const;
+/** The WebGL viewport fills the panel. Alerts use collision placement or the separate log. */
+export const GRAPH_FRAME = { side: 0, top: 0, bottom: 0, cardWidth: 210, cardHeight: 96 } as const;
 export const GRAPH_FRAME_STYLE = {
-  "--warning-side": `${GRAPH_FRAME.side}px`, "--warning-top": `${GRAPH_FRAME.top}px`,
-  "--warning-bottom": `${GRAPH_FRAME.bottom}px`, "--warning-card-height": `${GRAPH_FRAME.cardHeight}px`,
-  "--warning-compact-side": `${GRAPH_FRAME.compactSide}px`, "--warning-compact-top": `${GRAPH_FRAME.compactTop}px`,
-  "--warning-compact-bottom": `${GRAPH_FRAME.compactBottom}px`,
+  "--warning-card-width": `${GRAPH_FRAME.cardWidth}px`, "--warning-card-height": `${GRAPH_FRAME.cardHeight}px`,
 } as CSSProperties;

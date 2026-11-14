@@ -10,9 +10,11 @@ function luminance(hex: string) {
 }
 
 describe("console action palette", () => {
-  it("keeps white action labels readable on both cyan button states", () => {
+  it("keeps action labels readable on both blue button states", () => {
     for (const background of [UI_COLORS["action-bg"], UI_COLORS["action-hover"]]) {
-      expect((luminance(UI_COLORS["action-text"]) + .05) / (luminance(background) + .05)).toBeGreaterThanOrEqual(4.5);
+      const text = luminance(UI_COLORS["action-text"]);
+      const fill = luminance(background);
+      expect((Math.max(text, fill) + .05) / (Math.min(text, fill) + .05)).toBeGreaterThanOrEqual(4.5);
     }
   });
 });

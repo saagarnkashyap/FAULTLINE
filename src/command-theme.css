@@ -1,0 +1,162 @@
+/* COMMAND structure and HACKER atmosphere for the fixed Terminal Command preset. */
+.command-center.terminal-command { --command: var(--interaction); --instrument-face: #10150F; }
+.command-center.terminal-command .command-only { display: block; }
+.command-center.terminal-command .app-header { display: grid; grid-template-columns: auto minmax(260px, 1fr) auto; gap: 18px; padding: 12px 18px; background: linear-gradient(180deg, #171B14, var(--bg)); border-block: 3px solid var(--border); box-shadow: inset 0 1px #ffffff0d; }
+.command-center.terminal-command .brand { border-left: 4px solid var(--command); padding-left: 11px; }
+.command-center.terminal-command .brand-mark { color: var(--text); }
+.command-center.terminal-command .brand h1 { font-family: "Bahnschrift", "Segoe UI", sans-serif; font-size: 25px; font-style: normal; letter-spacing: .14em; }
+.command-center.terminal-command .brand p { color: var(--secondary); font: 7px Consolas, monospace; letter-spacing: .1em; }
+.command-center.terminal-command .command-header-cluster { display: grid; grid-template-columns: minmax(125px, .9fr) 1.6fr; min-width: 0; border: 1px solid var(--border); background: var(--graph); }
+.command-center.terminal-command .system-indicator { display: flex; flex-wrap: wrap; justify-content: flex-start; align-content: center; gap: 5px; min-height: 52px; border: 0; border-right: 1px solid var(--border); border-radius: 0; padding: 7px 10px; color: var(--text); font-size: 9px; box-shadow: none; }
+.command-center.terminal-command .system-indicator > span { width: 5px; height: 9px; border-radius: 0; color: var(--healthy); }
+.command-center.terminal-command .system-indicator small { width: 100%; font: 7px Consolas, monospace; color: var(--secondary); letter-spacing: .08em; }
+.command-center.terminal-command .system-indicator.is-critical { color: var(--offline); background: color-mix(in srgb, var(--offline) 7%, var(--graph)); }
+.command-center.terminal-command .system-indicator.is-critical > span { color: var(--offline); }
+.command-center.terminal-command .system-indicator.is-degraded { color: var(--degraded); }
+.command-center.terminal-command .system-indicator.is-degraded > span { color: var(--degraded); }
+.command-center.terminal-command .system-indicator.is-recovering { color: var(--recovering); }
+.command-center.terminal-command .system-indicator.is-recovering > span { color: var(--recovering); }
+.command-center.terminal-command .header-status-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 0; padding: 0 3px; }
+.command-center.terminal-command .header-status-strip > span { flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-right: 1px solid var(--border); padding: 4px 5px; }
+.command-center.terminal-command .header-status-strip > span:last-child { border: 0; }
+.command-center.terminal-command .header-status-strip b { color: var(--text); font: 22px/1 Consolas, monospace; font-variant-numeric: tabular-nums; }
+.command-center.terminal-command .header-status-strip .status-badge { font-size: 7px; letter-spacing: .02em; }
+.command-center.terminal-command .header-actions { gap: 7px; }
+.command-center.terminal-command .tick-display { padding: 3px 11px; background: var(--graph); border: 1px solid var(--border); }
+.command-center.terminal-command .tick-display strong { color: var(--text); font-size: 23px; text-shadow: 0 0 8px #e8e6d81a; }
+.command-center.terminal-command .tick-display > span { color: var(--command); font-size: 7px; }
+.command-center.terminal-command .workload-control label { color: var(--command); }
+.command-center.terminal-command .button { border-radius: 0; background: var(--elevated); box-shadow: inset 0 2px #ffffff08, inset 0 -2px #0008; font-size: 11px; }
+.command-center.terminal-command .button-primary { background: var(--action-bg); color: var(--action-text); border-color: var(--command); box-shadow: inset 0 2px #ffffff35, inset 0 -2px #0003; }
+.command-center.terminal-command .button-primary:not(:disabled):hover { background: var(--action-hover); }
+.command-center.terminal-command .button-danger { color: var(--offline); background: color-mix(in srgb, var(--offline) 8%, var(--graph)); border-color: var(--offline); }
+.command-center.terminal-command .button:disabled { opacity: 1; color: var(--secondary); border-color: var(--border); background: repeating-linear-gradient(-45deg, #ffffff03 0 2px, transparent 2px 5px), var(--graph); box-shadow: none; }
+.command-center.terminal-command .button:not(:disabled):hover { border-color: var(--command); }
+.command-center.terminal-command .panel { background: var(--border); clip-path: polygon(0 8px, 8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px)); }
+.command-center.terminal-command .panel::before { inset: 1px; box-shadow: inset 3px 0 #ffffff05, inset -3px 0 #ffffff05; }
+.command-center.terminal-command .command-panel-heading { display: flex; align-items: stretch; gap: 0; min-height: 65px; padding: 0; border-block: 3px solid var(--border); background: var(--elevated); }
+.command-center.terminal-command .command-section-number { display: grid; place-items: center; flex: 0 0 34px; border-right: 1px solid var(--border); background: var(--graph); color: var(--command); font: 19px Consolas, monospace; }
+.command-center.terminal-command .command-heading-copy { flex: 1; min-width: 0; padding: 10px 9px; }
+.command-center.terminal-command .command-heading-copy > span { display: block; color: var(--secondary); font: 7px Consolas, monospace; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+.command-center.terminal-command .command-heading-copy h2 { font-family: "Bahnschrift", "Segoe UI", sans-serif; font-size: 13px; letter-spacing: .07em; line-height: 1.1; }
+.command-center.terminal-command .command-heading-count { align-self: center; padding: 5px; margin-right: 8px; color: var(--text); border: 1px solid var(--border); background: var(--graph); font: 19px/1 Consolas, monospace; }
+.command-center.terminal-command .command-bezel-slots { flex: 0 0 6px; margin: 10px 7px; background: repeating-linear-gradient(0deg, var(--border-strong) 0 2px, transparent 2px 5px); }
+.command-center.terminal-command .roster-readiness { display: grid; grid-template-columns: 1fr auto; gap: 4px; padding: 8px 10px; border-bottom: 1px solid var(--border); background: var(--instrument-face); }
+.command-center.terminal-command .roster-readiness > span { color: var(--secondary); font: 8px Consolas, monospace; text-transform: uppercase; align-self: center; }
+.command-center.terminal-command .roster-readiness strong { color: var(--text); font: 15px Consolas, monospace; }
+.command-center.terminal-command .roster-readiness small { font-size: 9px; color: var(--secondary); }
+.command-center.terminal-command .roster-readiness meter { grid-column: 1 / -1; width: 100%; height: 5px; border: 0; background: var(--border); accent-color: var(--healthy); }
+.command-center.terminal-command meter::-webkit-meter-bar { border: 0; border-radius: 0; background: var(--border); }
+.command-center.terminal-command meter::-webkit-meter-optimum-value { background: var(--healthy); }
+.command-center.terminal-command .service-list { padding: 3px 8px; }
+.command-center.terminal-command .service-button { display: grid; grid-template-columns: 24px minmax(0, 1fr) 7px; align-items: center; min-height: 40px; padding: 6px 3px; gap: 7px; border-radius: 0; border: 0; border-bottom: 1px solid var(--border); }
+.command-center.terminal-command .service-index { display: grid; place-items: center; width: 23px; height: 26px; color: var(--secondary); border: 1px solid var(--border); background: var(--graph); font: 9px Consolas, monospace; }
+.command-center.terminal-command .explorer-service-icon { display: none; }
+.command-center.terminal-command .service-button.is-selected { background: linear-gradient(90deg, #e7b46621, transparent); box-shadow: inset 2px 0 var(--command); }
+.command-center.terminal-command .service-button.is-selected .service-index { color: var(--command); border-color: var(--command); }
+.command-center.terminal-command .service-name { color: var(--text); font-size: 11px; }
+.command-center.terminal-command .service-list .status-badge { font-size: 9px; }
+.command-center.terminal-command .selection-arrow { margin: 0; font-size: 16px; }
+.command-center.terminal-command .explorer-footer { background: var(--instrument-face); border-top: 3px solid var(--border); padding: 8px 12px; }
+.command-center.terminal-command .network-heading { display: flex; align-items: center; gap: 13px; padding: 10px 16px; background: linear-gradient(90deg, #1d2116, var(--graph) 65%); border-top: 3px solid var(--border); border-bottom: 1px solid var(--border); }
+.command-center.terminal-command .network-section-number { display: grid; place-items: center; width: 35px; height: 57px; flex-shrink: 0; color: var(--command); border: 1px solid var(--border); background: var(--graph); font: 22px Consolas, monospace; }
+.command-center.terminal-command .network-heading > div { min-width: 0; }
+.command-center.terminal-command .network-heading h2 { color: var(--text); font: 700 24px/1.15 "Bahnschrift", "Segoe UI", sans-serif; letter-spacing: .025em; }
+.command-center.terminal-command .network-heading .eyebrow { color: var(--command); font-size: 7px; }
+.command-center.terminal-command .network-mode { margin-left: auto; padding: 6px 8px; border-left: 3px solid var(--command); color: var(--secondary); font: 7px Consolas, monospace; }
+.command-center.terminal-command .service-card { padding: 16px 12px; }
+.command-center.terminal-command .service-card-identity { padding: 0 0 14px; border-bottom: 1px solid var(--border); margin-bottom: 12px; align-items: flex-start; }
+.command-center.terminal-command .service-card-identity .service-glyph { width: 42px; height: 49px; border-radius: 0; background: var(--graph); box-shadow: inset 0 -3px var(--service-status); }
+.command-center.terminal-command .inspector-service-id { color: var(--command); font: 8px Consolas, monospace; text-transform: uppercase; letter-spacing: .12em; margin: 0 0 4px; }
+.command-center.terminal-command .service-card-identity h3 { font: 600 18px/1.2 "Bahnschrift", "Segoe UI", sans-serif; margin-bottom: 6px; }
+.command-center.terminal-command .service-card-description { font-size: 11px; margin-bottom: 16px; }
+.command-center.terminal-command .inspector-command-bank { display: block; border: 1px solid var(--border); padding: 0 8px 8px; background: var(--instrument-face); }
+.command-center.terminal-command .instrument-caption { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; color: var(--secondary); font: 8px Consolas, monospace; text-transform: uppercase; letter-spacing: .06em; }
+.command-center.terminal-command .instrument-caption > span:last-child { color: var(--command); }
+.command-center.terminal-command .fault-buttons { position: static; background: transparent; padding: 3px 0; gap: 6px; }
+.command-center.terminal-command .fault-buttons .button { min-width: 0; min-height: 38px; padding: 7px 4px; }
+.command-center.terminal-command .service-condition { margin: 6px 0 0; font: 9px/1.5 Consolas, monospace; padding: 4px 7px; background: var(--graph); }
+.command-center.terminal-command .inspector-instruments { display: block; margin-top: 16px; }
+.command-center.terminal-command .service-quick-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; border: 0; margin: 0; padding: 0; }
+.command-center.terminal-command .service-quick-stats > div { position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 6px; min-height: 83px; padding: 8px 7px; border: 1px solid var(--border); border-top: 2px solid var(--border-strong); background: var(--instrument-face); }
+.command-center.terminal-command .service-quick-stats > div:last-child:nth-child(odd) { grid-column: 1 / -1; min-height: 64px; }
+.command-center.terminal-command .service-quick-stats dt { font: 8px Consolas, monospace; text-transform: uppercase; letter-spacing: .08em; }
+.command-center.terminal-command .service-quick-stats dd { color: var(--text); font: 22px/1.1 Consolas, monospace; text-align: left; text-shadow: 0 0 8px #e8e6d81a; }
+.command-center.terminal-command .service-quick-stats small { display: block; font: 8px/1.3 Consolas, monospace; color: var(--secondary); margin-top: 3px; }
+.command-center.terminal-command .service-connections { border-top: 3px solid var(--border); padding-top: 7px; margin-top: 16px; }
+.command-center.terminal-command .service-connections h4 { font: 9px Consolas, monospace; color: var(--command); }
+.command-center.terminal-command .service-connections h4 span { border: 1px solid var(--border); padding: 0 5px; color: var(--text); }
+.command-center.terminal-command .service-connections button { padding: 8px 3px; font-size: 10px; }
+.command-center.terminal-command .service-connections .status-badge { font: 8px Consolas, monospace; }
+.command-center.terminal-command .service-pool-note { border-color: var(--command); }
+.command-center.terminal-command .incident-panel > .incident-toolbar { position: relative; background: var(--elevated); padding-left: 44px !important; border-right: 3px solid var(--border) !important; }
+.command-center.terminal-command .timeline-section-number { display: block; position: absolute; top: 14px; left: 10px; font: 18px Consolas, monospace; color: var(--command); }
+.command-center.terminal-command .incident-toolbar h2 { font-family: "Bahnschrift", "Segoe UI", sans-serif; }
+.command-center.terminal-command .product-timeline { background: repeating-linear-gradient(90deg, transparent 0 47px, #e8e6d806 47px 48px), var(--graph); }
+.command-center.terminal-command .product-timeline li::before { border-radius: 0; width: 5px; height: 8px; top: -5px; box-shadow: 0 0 7px var(--timeline-color); }
+.command-center.terminal-command .product-timeline time { color: var(--command); font-size: 9px; }
+.command-center.terminal-command :is(.eyebrow, .card-label, .timeline-note, .count-tag, .network-subtitle) { font-family: Consolas, monospace; }
+.command-center.terminal-command .graph-camera-controls .button[aria-pressed="true"] { border-color: var(--command); color: var(--command); }
+/* Network optics: dark-only foreground depth over a dim plotted monitor. */
+.command-center.terminal-command .network-ambience { opacity: 1; }
+.command-center.terminal-command .network-grid { opacity: .12; }
+.command-center.terminal-command .terminal-plot { display: block; opacity: .7; }
+.command-center.terminal-command .network-orbits { opacity: .55; }
+.command-center.terminal-command .hud-arc { animation-duration: 48s; }
+.command-center.terminal-command .plot-axis-labels { font: 8px Consolas, monospace; }
+.command-center.terminal-command .graph-stage::after { background: repeating-linear-gradient(0deg, transparent 0 3px, #e8e6d805 3px 4px); }
+.command-center.terminal-command .node-frame { filter: drop-shadow(0 5px 3px #000b) drop-shadow(0 0 6px color-mix(in srgb, var(--node-status) 60%, transparent)); }
+.command-center.terminal-command .node-frame path { fill: var(--elevated); stroke-width: 1.5; }
+.command-center.terminal-command .node-frame .node-frame-accent { stroke-width: 3; }
+.command-center.terminal-command .node-card-face::after { content: ""; position: absolute; top: 7px; right: 9px; width: 7px; height: 2px; background: var(--node-status); box-shadow: 0 0 4px var(--node-status); }
+.command-center.terminal-command .network-node-label strong { color: var(--text); font-weight: 700; }
+.command-center.terminal-command .network-node-label[data-status="healthy"] .service-symbol { color: var(--brand); }
+.command-center.terminal-command .network-node-label.is-selected .node-frame { filter: drop-shadow(0 6px 4px #000d) drop-shadow(0 0 10px #e7b46699); }
+.command-center.terminal-command .network-node-label.is-selected .node-frame path { stroke: var(--command); }
+.command-center.terminal-command .network-node-label.is-selected .node-frame-accent { stroke-width: 4; }
+.command-center.terminal-command .network-node-label.is-connected .node-frame path { stroke-width: 2; }
+.command-center.terminal-command .network-node-label:is([data-status="offline"], [data-status="recovering"], [data-status="degraded"]) .node-frame { animation: command-state-pulse 4s ease-in-out infinite; }
+.command-center.terminal-command .network-node-label:hover .node-frame { filter: drop-shadow(0 5px 3px #000b) drop-shadow(0 0 11px var(--node-status)); }
+@keyframes command-state-pulse { 0%, 100% { filter: drop-shadow(0 5px 3px #000b) drop-shadow(0 0 8px var(--node-status)); } 50% { filter: drop-shadow(0 5px 3px #000b) drop-shadow(0 0 13px var(--node-status)); } }
+/* Command incident channels. The engine determines every status, step and forecast. */
+.command-center.terminal-command .incident-mini-card { filter: drop-shadow(0 0 9px color-mix(in srgb, var(--mini-color) 48%, transparent)); }
+.command-center.terminal-command .incident-card-surface { padding: 2px; background: var(--mini-color); clip-path: polygon(0 10px, 10px 0, calc(100% - 16px) 0, 100% 16px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px)); }
+.command-center.terminal-command .incident-command-strip { display: flex; align-items: center; justify-content: space-between; gap: 6px; height: 16px; padding: 1px 10px; background: color-mix(in srgb, var(--mini-color) 23%, var(--graph)); color: var(--mini-text); font: 700 7px Consolas, monospace; letter-spacing: .08em; }
+.command-center.terminal-command .incident-command-strip > span:last-child { white-space: nowrap; color: var(--text); font-weight: 400; }
+.command-center.terminal-command .incident-mini-card .incident-card-content { position: relative; min-height: 86px; max-height: 112px; padding: 9px 10px; gap: 8px; overflow: auto; background: linear-gradient(110deg, color-mix(in srgb, var(--mini-color) 13%, var(--graph)), var(--graph) 90%); }
+.command-center.terminal-command .incident-mini-card h3 { font-family: "Bahnschrift", "Segoe UI", sans-serif; font-size: 12px; }
+.command-center.terminal-command .mini-card-category { font: 7px Consolas, monospace; letter-spacing: .06em; color: var(--secondary); }
+.command-center.terminal-command .warning-service-icon { width: 25px; height: 25px; }
+.command-center.terminal-command .root-incident-banner { filter: drop-shadow(0 0 12px color-mix(in srgb, var(--mini-color) 50%, transparent)); }
+.command-center.terminal-command .root-incident-banner .incident-card-content { min-height: 44px; height: 44px; max-height: 44px; padding: 5px 12px; }
+.command-center.terminal-command .root-incident-banner h3 { font-size: 15px; }
+.command-center.terminal-command .root-incident-banner .mini-card-status { font-size: 13px; }
+.command-center.terminal-command .root-repair-advice { font: 9px/1.3 Consolas, monospace; }
+.command-center.terminal-command .perimeter-toolbar { padding: 3px 7px; left: 9px; border-left: 3px solid var(--perimeter-accent); background: var(--graph); box-shadow: 0 0 0 1px var(--border); }
+.command-center.terminal-command .perimeter-incident-label { border: 0; padding: 0; }
+.command-center.terminal-command .notice-log, .command-center.terminal-command .notice-dock-idle { background: var(--instrument-face); border-top-color: var(--border); font-family: Consolas, monospace; }
+.command-center.terminal-command[data-incident="critical"] .service-button[data-status="healthy"]:not(.is-selected) .service-name { color: var(--secondary); }
+.command-center.terminal-command[data-incident="critical"] .network-node-label[data-status="healthy"]:not(.is-selected):not(.is-connected) .node-frame { filter: drop-shadow(0 4px 3px #0008); }
+.command-center.terminal-command[data-incident="critical"] .header-status-strip > span:first-child b { color: var(--secondary); }
+.command-center.terminal-command[data-incident="critical"] .network-panel { background: color-mix(in srgb, var(--offline) 50%, var(--border)); }
+.command-center.terminal-command[data-incident="warning"] .network-panel { background: color-mix(in srgb, var(--degraded) 50%, var(--border)); }
+.command-center.terminal-command[data-incident="recovery"] .network-panel { background: color-mix(in srgb, var(--recovering) 50%, var(--border)); }
+@media (max-width: 1450px) {
+  .command-center.terminal-command .app-header { gap: 12px; padding-inline: 12px; }
+  .command-center.terminal-command .brand h1 { font-size: 21px; }
+  .command-center.terminal-command .command-header-cluster { grid-template-columns: minmax(112px, .85fr) 1.4fr; }
+  .command-center.terminal-command .header-status-strip > span { padding-inline: 3px; }
+}
+@media (max-width: 1240px) {
+  .command-center.terminal-command .app-header { grid-template-columns: auto minmax(260px, 1fr); }
+  .command-center.terminal-command .header-actions { grid-column: 1 / -1; justify-self: end; width: auto; }
+}
+@media (max-width: 700px) {
+  .command-center.terminal-command .app-header { grid-template-columns: 1fr; }
+  .command-center.terminal-command .command-header-cluster { grid-template-columns: 1fr 1.5fr; }
+  .command-center.terminal-command .header-actions { width: 100%; justify-self: stretch; flex-wrap: wrap; }
+  .command-center.terminal-command .network-heading { gap: 8px; padding-inline: 9px; }
+  .command-center.terminal-command .network-heading h2 { font-size: 17px; }
+  .command-center.terminal-command .network-section-number { width: 25px; font-size: 17px; }
+  .command-center.terminal-command .network-mode { display: none; }
+}

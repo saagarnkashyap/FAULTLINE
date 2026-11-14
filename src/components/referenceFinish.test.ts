@@ -24,6 +24,7 @@ describe("reference-inspired presentation finish", () => {
     expect(html).not.toContain('class="network-stats"');
     expect(html).toContain('aria-label="Live service totals"');
     expect(html).not.toContain("AUTOPILOT");
+    expect(html.match(/>Pause<\/button>/g)).toHaveLength(1);
   });
 
   it("uses local accessible service symbols consistently without replacing readable names", () => {

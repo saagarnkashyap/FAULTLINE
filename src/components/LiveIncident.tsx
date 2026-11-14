@@ -4,7 +4,7 @@ import { currentImpact, incidentOngoing, INCIDENT_TICK_CAP } from "../incident/i
 import type { SimulationScenario } from "../simulation/types";
 import { formatTime } from "./productCopy";
 
-export function LiveIncident({ state, scenario, dispatch }: { state: IncidentState; scenario: SimulationScenario; dispatch: Dispatch<IncidentAction> }) {
+export function LiveIncident({ state, scenario, dispatch, controlsInHeader = false }: { state: IncidentState; scenario: SimulationScenario; dispatch: Dispatch<IncidentAction>; controlsInHeader?: boolean }) {
   const incident = state.incident;
   const simulation = state.app.simulation;
   const impact = currentImpact(simulation);
@@ -18,8 +18,8 @@ export function LiveIncident({ state, scenario, dispatch }: { state: IncidentSta
     <div className="incident-toolbar"><div><span className="eyebrow">INCIDENT ZERO</span><h2 id="live-incident-heading">{heading}</h2></div>
       <div className="incident-playback-controls">
         <label><input type="checkbox" checked={state.automatic} onChange={(event) => dispatch({ type: "playback-mode", automatic: event.currentTarget.checked })} /> Auto play</label>
-        <button className="button button-secondary" type="button" disabled={incident?.phase !== "running"} onClick={() => dispatch({ type: "pause" })}>Pause</button>
-        <button className="button button-secondary" type="button" disabled={!canResume} onClick={() => dispatch({ type: "resume" })}>Resume</button>
+        {!controlsInHeader && <><button className="button button-secondary" type="button" disabled={incident?.phase !== "running"} onClick={() => dispatch({ type: "pause" })}>Pause</button>
+        <button className="button button-secondary" type="button" disabled={!canResume} onClick={() => dispatch({ type: "resume" })}>Resume</button></>}
         <button className="button button-secondary" type="button" disabled={!incident || incident.phase === "ended"} onClick={() => dispatch({ type: "skip" })}>Skip to End</button>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import type { ServiceId, SimulationScenario, SimulationState } from "../simulation/types";
 import { STATUS_PRESENTATION } from "../status";
 import { UI_COLORS } from "../theme";
+import type { ThemeColors } from "../theme";
 
 // These objects belong to the renderer. Physics may add coordinates or replace endpoints.
 export interface GraphNode {
@@ -45,11 +46,11 @@ export function toGraphData(scenario: SimulationScenario): ServiceGraphData {
 }
 
 /** Appearance reads the actual snapshot without writing status into layout objects. */
-export function nodeAppearance(id: ServiceId, state: SimulationState, selectedId: ServiceId | null, recentIds?: readonly ServiceId[]) {
+export function nodeAppearance(id: ServiceId, state: SimulationState, selectedId: ServiceId | null, recentIds?: readonly ServiceId[], colors: ThemeColors = UI_COLORS) {
   const runtime = state.services[id];
   if (!runtime) throw new Error(`Unknown graph service: ${id}.`);
   return {
-    color: STATUS_PRESENTATION[runtime.status].color,
+    color: colors[runtime.status],
     selected: id === selectedId,
     // nodeVal represents volume: eight times the volume doubles the radius.
     size: id === selectedId ? 8 : recentIds?.includes(id) ? 2 : 1,
@@ -83,11 +84,11 @@ export function linkTooltip(link: GraphLink, scenario: SimulationScenario): stri
 }
 
 /** A link reports its provider's current state, not a predicted consumer failure. */
-export function linkAppearance(link: GraphLink, state: SimulationState, selectedId: ServiceId | null) {
+export function linkAppearance(link: GraphLink, state: SimulationState, selectedId: ServiceId | null, colors: ThemeColors = UI_COLORS) {
   const related = link.consumerId === selectedId || link.providerId === selectedId;
   const provider = state.services[link.providerId]?.status;
-  const color = provider && provider !== "healthy" ? STATUS_PRESENTATION[provider].color
-    : related ? UI_COLORS.text : link.kind === "required" ? UI_COLORS["link-required"]
-      : link.kind === "pool-member" ? UI_COLORS["link-pool"] : UI_COLORS["link-optional"];
+  const color = provider && provider !== "healthy" ? colors[provider]
+    : related ? colors.text : link.kind === "required" ? colors["link-required"]
+      : link.kind === "pool-member" ? colors["link-pool"] : colors["link-optional"];
   return { color, width: related ? 1.8 : link.kind === "optional" ? .7 : 1 };
 }

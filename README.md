@@ -290,18 +290,43 @@ Service names remain on the graph, with actual status colors and a fixed layered
 camera angles may crowd labels. The local browser automation host is unavailable,
 so interactive graph/layout checks remain manual.
 
-## Current appearance and warning pacing
+## Full-network overview and Terminal Command
 
-The main screen follows the supplied command-console reference: a compact header,
-service list, dominant network, inspector, and short horizontal timeline. Cyan
-accents sit on navy/graphite surfaces; red, amber, green, and purple report actual
-service states. Fonts stay unchanged. Playback controls and impact metrics are
-under **Incident controls & impact**. Local service icons, clearer direction arrows,
-and restrained glows improve recognition. Inspected connections carry a slow visual
-direction marker, not measured traffic. All motion respects reduced-motion settings.
-Warning rails stay outside the graph, and new notices remain two seconds apart.
+The full graph panel is now the canvas. All twelve services appear in the default
+desktop overview as compact, attached 104 x 88px modules arranged around their actual
+dependencies. Nodes are not repacked into a grid. Hover or select a service to trace
+its connections; existing dependencies have clear bright paths and a few curved
+routing lanes that avoid unrelated badges.
 
-Forecasts still say, for example, "May go down in ~4 seconds ? please repair API
-Gateway," using actual dry-run timing and currently failed repair targets. Paused
-forecasts use steps. Manual Step/Skip remain immediate, and current graph status
-is never delayed by the notice reveal queue.
+Fit Network includes complete badge bounds. Initial fitting waits for the renderer
+to be ready, and resizing refits the full viewport. **Overview** returns to the front
+view after zooming or rotating; **Rotate view** enables optional 3D rotation. Simulation updates preserve camera, positions and selection.
+
+FAULTLINE uses one fixed Terminal Command interface. There is no theme toggle,
+alternate palette or saved theme preference. The console uses numbered
+panel bezels, a segmented status console, a numbered service roster, a real healthy-
+service meter, a separate manual command bank and a two-column reading matrix.
+The foundation is #070907 / #0D110D / #171D17 with warm #E8E6D8 text and neutral
+#4B5848 borders. Amber emphasizes commands and selection; teal/phosphor light is
+concentrated in the graph. Strong system sans-serif headings and mono instrumentation
+require no remote font requests.
+
+Dark graph paths have brighter additive cores/middle layers, soft shader halos and
+flowing direction markers. Active nodes have soft under-card orbits; the selected
+node has pixel-sized corner reticles that stay visible when zooming. Confirmed
+provider incidents intensify their actual routes and reduce unrelated healthy-route
+emphasis, without preempting delayed failure propagation. Cached GPU resources are reused across simulation updates.
+
+The command stylesheet and numbered panel headings define the fixed console. Faint plotting ticks, static phosphor dots and slow orbital detail
+support the graph without synthetic telemetry. Reduced-motion support is preserved.
+
+A real root-incident banner and a few collision-positioned notices appear around
+the network. Further notices remain accessible in the log below the canvas, rather
+than covering services. Automatic steps and new notices remain two seconds apart;
+forecasts and repair suggestions still come from the existing deterministic model.
+The console preserves incident history, recovery and comparison results.
+
+Automated tests exercise initialization, resize fitting, all-service visibility,
+actual paths/labels, alert collisions, legacy-preference isolation and the full
+incident lifecycle. Browser-based
+GPU appearance and exact reference fidelity remain manually unverified in this pass.

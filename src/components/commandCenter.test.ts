@@ -24,6 +24,17 @@ describe("simplified command center", () => {
     expect(html).toContain("Recovery lab");
   });
 
+  it("renders the fixed command instrument structure without a theme switch", () => {
+    const dark = renderToStaticMarkup(createElement(App));
+    expect(dark).toContain('class="command-header-cluster"');
+    expect(dark).toContain('class="panel-heading command-panel-heading"');
+    expect(dark).toContain("Infrastructure roster");
+    expect(dark).toContain('class="inspector-command-bank"');
+    expect(dark).toContain('aria-label="Service readings"');
+    expect(dark).toContain('data-incident="idle"');
+    expect(dark).not.toContain("theme-toggle");
+  });
+
   it("shows confirmed failure and engine-predicted countdowns, using steps while paused", () => {
     let state = reduceIncidentState(failchainScenario, createIncidentState(failchainScenario), { type: "app", action: { type: "fail" } });
     let html = renderToStaticMarkup(createElement(IncidentCommandOverlay, { state, scenario: failchainScenario }));
@@ -34,6 +45,9 @@ describe("simplified command center", () => {
     expect(html).toContain("POSSIBLE CASCADE");
     expect(html).toContain("May go down in ~2 seconds");
     expect(html).toContain("May go down in ~4 seconds");
+    expect(html).toContain("SYSTEM ALERT");
+    expect(html).toContain("CASCADE FORECAST");
+    expect(html).toContain(`data-step="${state.app.simulation.tick}"`);
     expect(html).toContain('aria-label="Minimize warnings"');
     state = reduceIncidentState(failchainScenario, state, { type: "pause" });
     html = renderToStaticMarkup(createElement(IncidentCommandOverlay, { state, scenario: failchainScenario }));
@@ -101,8 +115,9 @@ describe("simplified command center", () => {
     expect(graph.nodes.find(({ id }) => id === "identity")!.y).toBeGreaterThan(graph.nodes.find(({ id }) => id === "calendar")!.y!);
     expect(scenario).toEqual(original);
     const labels = placeGraphLabels([{ id: "a", x: 200, y: 150, width: 100, height: 35 }, { id: "b", x: 200, y: 150, width: 100, height: 35 }], 500, 400, "b");
-    expect(labels[0]!.id).toBe("b");
-    expect(labels[0]!.top).not.toBe(labels[1]!.top);
+    expect(labels.map(({ id }) => id)).toEqual(["a", "b"]);
+    expect(labels[0]!.top).toBe(132.5);
+    expect(labels[1]!.top).toBe(132.5);
     expect(labels.every(({ left, top }) => left >= 8 && top >= 40)).toBe(true);
   });
 });

@@ -1336,38 +1336,83 @@ accounting are unchanged. Browser automation remains unavailable here; geometry
 is separated structurally and covered by boundary assertions, with manual visual
 checks still recommended at the target viewport sizes.
 
-### Reference console layout and motion
+### Full-panel dependency overview
 
-The primary reference now governs the screen composition: compact branding/status/
-workload/time bar, narrow service explorer, dominant network, service inspector,
-and a 108px horizontal timeline directly beneath the three panels. Duplicate large
-status counters are removed. Playback controls and impact metrics remain available
-in a collapsed **Incident controls & impact** section; Recovery lab remains below.
-The internal controller is not exposed on the main screen.
+The graph now uses the full network panel. There are no permanent warning gutters
+and no inner clipped canvas. The default front-facing overview uses fixed, shallow
+2.5D coordinates arranged around the actual dependency structure. Compact 104 x 88px
+near-square service modules stay attached to their world anchors; the old card-grid fallback
+and displaced-label packing are removed. Hovering/selecting a service emphasizes
+its real connections while all services remain readable in the tested desktop view.
 
-`theme.ts` supplies graphite/navy surfaces, cyan network/interface accents, and
-separate green healthy, amber risk, red offline, and purple recovery colors. Existing
-Segoe UI and Consolas font families remain. Text/action contrast checks cover the
-new palette. Service icons are local SVGs; there are no external assets or libraries.
+`graphView.ts` fits complete badge bounds with glow padding, using the measured full
+canvas, live FOV, aspect and viewing direction. It sets the camera's projection to
+the actual canvas size. Early setters ignored during library initialization do not
+mark fitting complete: `CinematicGraph` retries after initialization and displays
+the scene only once an initial overview fit succeeds. Viewport resize refits the
+scene; simulation updates do not. Fit Network preserves orientation. Overview
+returns to the front view. Rotation is optional and initially disabled; zoom remains
+available. Camera transitions and reduced-motion behavior are retained.
 
-The renderer-only layered layout is wider, with stable fixed coordinates. Larger
-spheres, named icon/status badges, brighter provider-state links, and larger direction
-arrows improve recognition. Selection updates appearance without rebuilding graph
-data or moving the camera. Fit Network and Reset Camera retain their existing
-camera-only behavior. Warning cards occupy smaller reserved rails (88px card rows),
-remain outside the clipped graph canvas, and preserve stable slots and two-second
-reveal spacing. Smaller screens stack cards above/below the canvas.
+A few explicit, renderer-only routing lanes bend existing dependencies around
+unrelated service badges. `edgeRouting.ts` shares the exact quadratic control-point
+convention used by three-forcegraph, so TubeGeometry glow, native arrowheads and
+energy markers follow the same path. Curved geometry is cached by endpoint values,
+not rebuilt on simulation updates, and is disposed with the scene. Straight edges
+retain their cached bright core, saturated middle and soft shader halo. Both
+rendering modes keep actual provider-status colors. No relationships are invented.
 
-Motion is limited to slow incident/node glows, brief card entrances, and one slow
-visual direction marker on each inspected connection. These markers do not encode
-request counts, actual traffic speed, or recovery progress. CSS and WebGL motion
-respect `prefers-reduced-motion`, including preference changes while mounted.
-No synthetic metrics, countdown precision, or recovery percentages are added.
-The horizontal timeline still displays only real model events, follows new entries
-unless the user scrolls back, and can be scrolled with the keyboard.
+Incident presentation wraps the scene in a stable component so starting/resetting
+an incident cannot remount the graph. A genuine root-status banner appears at the
+top; at most three other revealed notices use measured clear space around node
+rectangles. Placement reserves controls and wrapped advice height. Notices without
+space go into a separate, initially collapsed log below the canvas. Opening it grows
+the desktop row rather than squeezing the graph. The log/idle strip has the same
+collapsed height, so incident injection does not change camera framing. Forecasts,
+repair advice, status updates and the two-second reveal cadence are unchanged.
 
-Simulation, application reducer, scenario data, and dependencies are unchanged.
-Tests cover composition, warning-rail boundaries/cadence, current provider-state
-colors, immutable layout/state, camera helpers, and the full fail/repair/reset
-lifecycle. Browser visual review remains pending because the browser access host
-is unavailable in this environment.
+Dark mode is Terminal Command with COMMAND as the primary structural influence and
+HACKER as the restrained monitor atmosphere. `command-theme.css` defines the fixed console,
+loaded after base styles. `CommandPanelHeading` renders numbered bezels and
+segmented captions. The header
+status console, roster meter, manual command bank and reading matrix use genuine
+service totals, local state and traffic values. The interface has no alternate palette, theme provider, toggle or saved preference.
+
+The foundation is #070907 background, #0D110D panels/canvas, #171D17 raised readings,
+#4B5848 dividers, #E8E6D8 primary text and #A6AC9A secondary text. Amber (#E7B466)
+emphasizes controls and selection. Phosphor (#B5ED8D), teal (#79C7AF), red (#E86765)
+and violet (#B3A3DD) are concentrated in meaningful graph/status lighting. System
+sans-serif headings and mono instrumentation have no external font dependency.
+
+Three.js dark optics strengthen the existing additive core/middle/halo path layers
+and shader flow. A soft radial shader orbit, segmented arc and corner reticle extend
+around the opaque selected/affected HTML module. Camera-space depth and CSS viewport
+height size those details in screen pixels, so they stay visible after fitting or
+zooming. These resources are cached/disposed with the scene. Real provider status
+drives incident intensity; unrelated healthy routes are subdued without inventing
+future failure states. All links use additive command lighting and the same native direction markers;
+reticles and halos follow actual status and selection.
+
+The app's `data-incident` tone follows actual service counts. Confirmed incidents
+strengthen the graph frame and alert channels while reducing emphasis on unrelated
+healthy roster rows. Warning channels include actual step metadata, distinctly label
+forecasts, and retain repair advice. The root alert fits a 64px envelope at the top;
+secondary channels stay inside the existing 136px placement envelope, with scrollable
+content. Reveal cadence and collision placement do not change. Static phosphor dots,
+plot ticks and very dim orbital details carry no fabricated telemetry. Reduced-motion
+settings stop shader flow, energy markers, orbital pulses and CSS animations.
+
+`theme.ts` contains only the command palette. `main.tsx` installs its CSS variables
+on the document, and App uses the same fixed style. The `terminal-command` class
+is a static styling hook, not a selectable mode. Legacy saved theme values are never
+read, so they cannot restore a removed appearance. Simulation/selection/history/
+recovery/comparison state and camera/data identities remain independent of styling.
+No positions, dependencies, propagation, experiment calculations or playback
+scheduling changed.
+
+Tests cover all-service visibility and badge separation at representative desktop
+sizes, routed paths avoiding unrelated badges, full-canvas CSS, collision-free alert
+placement, ignored initial camera setters, resize refitting, camera preservation through simulation updates, cached geometry/disposal, command-palette contrast, and existing engine
+and recovery behavior. No browser automation is used. GPU appearance/performance and
+reference-image fidelity still require manual visual inspection. Strongly rotated,
+zoomed or very narrow views can require Overview to restore the readable composition.
